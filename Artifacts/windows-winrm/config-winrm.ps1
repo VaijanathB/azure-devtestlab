@@ -141,15 +141,18 @@ function Add-FirewallException
         [string] $Port
     )
 
+    # WinRM firewall exception will not work since one of the network connection types on this machine is set to Public. 
+    # Change the network connection type to either Domain or Private for winrm to work properly.
+    $networkListManager = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"{DCB00C01-570F-4A9B-8D69-199FDBA5723B}")) 
+    $connections = $networkListManager.GetNetworkConnections() 
 
-    # $networkListManager = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"{DCB00C01-570F-4A9B-8D69-199FDBA5723B}")) 
-    # $connections = $networkListManager.GetNetworkConnections() 
-
-    # # Set network location to Private for all networks 
-    # $connections | % {$_.GetNetwork().SetCategory(1)}
-
-    Enable-PSRemoting -SkipNetworkProfileCheck -Force
-
+    if ($LastExitCode -eq 0)
+    {
+        # Set network location to Private for all networks 
+        $connections | % {$_.GetNetwork().SetCategory(1)}
+        Handle-LastExitCode
+    }
+    
     $ruleName = "Windows Remote Management (HTTPS-In)"
 
     # Determine if the rule already exists.
