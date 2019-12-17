@@ -146,12 +146,13 @@ function Add-FirewallException
     $networkListManager = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"{DCB00C01-570F-4A9B-8D69-199FDBA5723B}")) 
     $connections = $networkListManager.GetNetworkConnections() 
     Handle-LastExitCode
-    
+
     if ($LastExitCode -eq 0)
     {
         # Set network location to Private for all networks 
         $connections | % {$_.GetNetwork().SetCategory(1)}
         Handle-LastExitCode
+        Write-Output 'Converted network connections types to private.'
     }
 
     $ruleName = "Windows Remote Management (HTTPS-In)"
@@ -173,6 +174,7 @@ function Add-FirewallException
 try {
     Write-Output 'Add firewall exception for port 5986.'
     Add-FirewallException -Port 5986
+    Write-Output 'Add firewall exception for port 5986. Success'
 
     # Ensure that the service is running and is accepting requests.
     winrm quickconfig -force
