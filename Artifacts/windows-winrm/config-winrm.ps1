@@ -145,19 +145,10 @@ function Add-FirewallException
     # Change the network connection type to either Domain or Private for winrm to work properly.
     $networkListManager = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"{DCB00C01-570F-4A9B-8D69-199FDBA5723B}")) 
     $connections = $networkListManager.GetNetworkConnections() 
-    if ($LastExitCode -ne 0)
-    {
-        Write-Output 'Unable to get Network connections.'
-        Handle-LastExitCode
-    }
-
-    if ($LastExitCode -eq 0)
-    {
-        # Set network location to Private for all networks 
-        $connections | % {$_.GetNetwork().SetCategory(1)}
-        Handle-LastExitCode
-        Write-Output 'Converted network connections types to private.'
-    }
+    # Set network location to Private for all networks 
+    $connections | % {$_.GetNetwork().SetCategory(1)}
+    Handle-LastExitCode
+    Write-Output 'Converted network connections types to private.'
 
     $ruleName = "Windows Remote Management (HTTPS-In)"
 
