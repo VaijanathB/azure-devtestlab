@@ -147,7 +147,6 @@ function Add-FirewallException
     $connections = $networkListManager.GetNetworkConnections() 
     # Set network location to Private for all networks 
     $connections | % {$_.GetNetwork().SetCategory(1)}
-    Handle-LastExitCode
     Write-Output 'Converted network connections types to private.'
 
     $ruleName = "Windows Remote Management (HTTPS-In)"
