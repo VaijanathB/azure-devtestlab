@@ -141,6 +141,14 @@ function Add-FirewallException
         [string] $Port
     )
 
+    # WinRM firewall exception will not work since one of the network connection types on this machine is set to Public. 
+    # Change the network connection type to either Domain or Private for winrm to work properly.
+    $networkListManager = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"{DCB00C01-570F-4A9B-8D69-199FDBA5723B}")) 
+    $connections = $networkListManager.GetNetworkConnections() 
+    # Set network location to Private for all networks 
+    $connections | % {$_.GetNetwork().SetCategory(1)}
+    Write-Output 'Converted network connections types to private.'
+
     $ruleName = "Windows Remote Management (HTTPS-In)"
 
     # Determine if the rule already exists.
@@ -160,6 +168,7 @@ function Add-FirewallException
 try {
     Write-Output 'Add firewall exception for port 5986.'
     Add-FirewallException -Port 5986
+    Write-Output 'Add firewall exception for port 5986. Success'
 
     # Ensure that the service is running and is accepting requests.
     winrm quickconfig -force
